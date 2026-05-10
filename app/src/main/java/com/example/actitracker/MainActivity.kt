@@ -91,8 +91,12 @@ class MainActivity : ComponentActivity() {
 
         val app = application as ActiTrackerApplication
         val repository = app.repository
+        val backupManager = com.example.actitracker.data.DataBackupManager(
+            app.database.activityDao(),
+            app.settingsDataStore
+        )
         val todayFactory = TodayViewModelFactory(repository, app.settingsDataStore)
-        val settingsFactory = SettingsViewModelFactory(app.settingsDataStore)
+        val settingsFactory = SettingsViewModelFactory(app.settingsDataStore, backupManager)
 
         val serviceIntent = Intent(this, ActivityTrackerService::class.java)
         ContextCompat.startForegroundService(this, serviceIntent)
@@ -202,8 +206,8 @@ class MainActivity : ComponentActivity() {
                                         onGoalUpdate = { todayViewModel.updateGoal(it) },
                                         onGoalCreate = { todayViewModel.addGoal(it) },
                                         onGoalDelete = { todayViewModel.deleteGoal(it) },
-                                        backgroundColor = backgroundColor,
-                                        contentColor = contentColor
+                                        dialogBackgroundColor = backgroundColor,
+                                        dialogContentColor = contentColor
                                     )
                                 }
 
@@ -215,13 +219,15 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
 
-                                composable("settings") {
+                                composable("settings?highlight={highlight}") { backStackEntry ->
+                                    val highlight = backStackEntry.arguments?.getString("highlight") == "true"
                                     SettingsScreen(
                                         settingsViewModel = settingsViewModel,
                                         onNavigateToLicenses = {
                                             navController.navigate("licenses")
                                         },
-                                        contentColor = contentColor
+                                        contentColor = contentColor,
+                                        shouldHighlight = highlight
                                     )
                                 }
 

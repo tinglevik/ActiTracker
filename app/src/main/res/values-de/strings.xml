@@ -54,6 +54,30 @@
     <string name="settings_reverted">Änderungen rückgängig gemacht</string>
     <string name="settings_saved">Änderungen gespeichert</string>
 
+    <!-- Data Management -->
+    <string name="settings_data_management">Datenverwaltung</string>
+    <string name="settings_import_export">Import / Export</string>
+    <string name="settings_import_export_desc">Sichern und Wiederherstellen Ihrer Daten</string>
+    <string name="export_title">Daten exportieren</string>
+    <string name="import_title">Daten importieren</string>
+    <string name="export_activities">Aktivitäten</string>
+    <string name="export_tags">Tags</string>
+    <string name="export_goals">Ziele</string>
+    <string name="export_logs">Timer-Daten</string>
+    <string name="export_settings">App-Einstellungen</string>
+    <string name="export_button">Exportieren</string>
+    <string name="import_button">Importieren</string>
+    <string name="import_success">Daten erfolgreich importiert</string>
+    <string name="export_success">Daten erfolgreich exportiert</string>
+    <string name="select_all">Alles auswählen</string>
+    <string name="import_confirm_title">Daten importieren?</string>
+    <string name="import_confirm_desc">Diese Aktion kann nicht rückgängig gemacht werden. Ausgewählte Daten (Aktivitäten, Tags, Ziele und Timer-Protokolle) werden durch die importierten Werte ersetzt oder mit ihnen zusammengeführt.</string>
+    <string name="import_confirm_question">Möchten Sie mit dem Import fortfahren?</string>
+    <string name="continue_button">Fortfahren</string>
+    <string name="redirect_import_title">Import / Export</string>
+    <string name="redirect_import_message">Um Ihre Aktivitäten, Tags, Ziele und Timer-Daten zu importieren oder zu exportieren, gehen Sie bitte zum Abschnitt „%1$s“ in den Einstellungen.</string>
+    <string name="go_to_settings">Zu den Einstellungen</string>
+
     <!-- Edit Activity Dialog -->
     <string name="create_activity_title">Aktivität erstellen</string>
     <string name="edit_activity_title">Aktivität bearbeiten</string>

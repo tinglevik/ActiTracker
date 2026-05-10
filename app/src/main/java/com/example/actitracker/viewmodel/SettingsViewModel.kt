@@ -5,13 +5,15 @@ import androidx.compose.ui.graphics.Color
 import com.example.actitracker.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.actitracker.data.DataBackupManager
 import com.example.actitracker.data.SettingsDataStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
-    private val settingsDataStore: SettingsDataStore
+    private val settingsDataStore: SettingsDataStore,
+    private val backupManager: DataBackupManager
 ) : ViewModel() {
 
     private val _backgroundColor = MutableStateFlow(Color(SettingsDataStore.DEFAULT_COLOR_ARGB))
@@ -29,6 +31,12 @@ class SettingsViewModel(
 
     private val _snackbarMessage = MutableStateFlow<String?>(null)
     val snackbarMessage: StateFlow<String?> = _snackbarMessage
+
+    private val _dimScreen = MutableStateFlow(false)
+    val dimScreen: StateFlow<Boolean> = _dimScreen
+
+    private val _highlightDataManagement = MutableStateFlow(false)
+    val highlightDataManagement: StateFlow<Boolean> = _highlightDataManagement
 
     init {
         viewModelScope.launch {
@@ -85,6 +93,57 @@ class SettingsViewModel(
     fun keepChanges(context: Context) {
         hideWarning()
         showSnackbar(context.getString(R.string.settings_saved))
+    }
+
+    fun triggerHighlight() {
+        viewModelScope.launch {
+            repeat(2) {
+                _highlightDataManagement.value = true
+                kotlinx.coroutines.delay(500)
+                _highlightDataManagement.value = false
+                kotlinx.coroutines.delay(400)
+            }
+        }
+    }
+
+    fun createBackup(
+        activities: Boolean,
+        tags: Boolean,
+        goals: Boolean,
+        logs: Boolean,
+        settings: Boolean,
+        onResult: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val json = backupManager.createBackup(activities, tags, goals, logs, settings)
+                onResult(json)
+            } catch (e: Exception) {
+                showSnackbar("Export failed: ${e.message}")
+            }
+        }
+    }
+
+    fun restoreBackup(
+        json: String,
+        activities: Boolean,
+        tags: Boolean,
+        goals: Boolean,
+        logs: Boolean,
+        settings: Boolean,
+        context: Context
+    ) {
+        viewModelScope.launch {
+            try {
+                backupManager.restoreBackup(json, activities, tags, goals, logs, settings)
+                _dimScreen.value = true
+                showSnackbar(context.getString(R.string.import_success))
+                kotlinx.coroutines.delay(1500)
+                _dimScreen.value = false
+            } catch (e: Exception) {
+                showSnackbar("Import failed: ${e.message}")
+            }
+        }
     }
 
     private fun Color.toArgbInt(): Int {

@@ -54,6 +54,30 @@
     <string name="settings_reverted">Cambios revertidos</string>
     <string name="settings_saved">Cambios guardados</string>
 
+    <!-- Data Management -->
+    <string name="settings_data_management">Gestión de datos</string>
+    <string name="settings_import_export">Importar / Exportar</string>
+    <string name="settings_import_export_desc">Copia de seguridad y restauración de sus datos</string>
+    <string name="export_title">Exportar datos</string>
+    <string name="import_title">Importar datos</string>
+    <string name="export_activities">Actividades</string>
+    <string name="export_tags">Etiquetas</string>
+    <string name="export_goals">Objetivos</string>
+    <string name="export_logs">Datos del temporizador</string>
+    <string name="export_settings">Ajustes de la aplicación</string>
+    <string name="export_button">Exportar</string>
+    <string name="import_button">Importar</string>
+    <string name="import_success">Datos importados con éxito</string>
+    <string name="export_success">Datos exportados con éxito</string>
+    <string name="select_all">Seleccionar todo</string>
+    <string name="import_confirm_title">¿Importar datos?</string>
+    <string name="import_confirm_desc">Esta acción no se puede deshacer. Los datos seleccionados (actividades, etiquetas, objetivos y registros del temporizador) se reemplazarán o fusionarán con los valores importados.</string>
+    <string name="import_confirm_question">¿Desea continuar con la importación?</string>
+    <string name="continue_button">Continuar</string>
+    <string name="redirect_import_title">Importar / Exportar</string>
+    <string name="redirect_import_message">Para importar o exportar sus actividades, etiquetas, objetivos y datos del temporizador, vaya a la sección "%1$s" en Ajustes.</string>
+    <string name="go_to_settings">Ir a Ajustes</string>
+
     <!-- Edit Activity Dialog -->
     <string name="create_activity_title">Crear actividad</string>
     <string name="edit_activity_title">Editar actividad</string>

@@ -4,15 +4,47 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,10 +53,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -33,6 +67,7 @@ import com.example.actitracker.R
 import com.example.actitracker.data.model.ActivityItem
 import com.example.actitracker.data.model.TagItem
 import com.example.actitracker.ui.components.IconMapper
+import com.example.actitracker.ui.theme.ActitrackerTheme
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -58,7 +93,7 @@ fun EditActivityDialog(
     val showColorPicker = remember { mutableStateOf(false) }
     val showIconPicker = remember { mutableStateOf(false) }
     val showLimitWarning = remember { mutableStateOf(false) }
-    
+
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val dummyFocusRequester = remember { FocusRequester() }
@@ -71,7 +106,11 @@ fun EditActivityDialog(
         iconContentColor = dialogContentColor,
 
         title = {
-            Text(if (isCreating) stringResource(R.string.create_activity_title) else stringResource(R.string.edit_activity_title))
+            Text(
+                if (isCreating) stringResource(R.string.create_activity_title) else stringResource(
+                    R.string.edit_activity_title
+                )
+            )
         },
 
         text = {
@@ -128,7 +167,11 @@ fun EditActivityDialog(
                             .size(32.dp)
                             .clip(CircleShape)
                             .background(selectedColor)
-                            .border(1.dp, dialogContentColor.copy(alpha = 0.3f), CircleShape)
+                            .border(
+                                1.dp,
+                                dialogContentColor.copy(alpha = 0.3f),
+                                CircleShape
+                            )
                     )
                 }
 
@@ -176,7 +219,9 @@ fun EditActivityDialog(
                         Box {
                             TextButton(
                                 onClick = { showTagMenu = true },
-                                colors = ButtonDefaults.textButtonColors(contentColor = dialogContentColor)
+                                colors = ButtonDefaults.textButtonColors(
+                                    contentColor = dialogContentColor
+                                )
                             ) {
                                 Text(stringResource(R.string.add_tag_button))
                             }
@@ -188,7 +233,12 @@ fun EditActivityDialog(
                                 val unselectedTags = allTags.filter { it.id !in selectedTagIds }
                                 if (unselectedTags.isEmpty()) {
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.no_more_tags), color = dialogContentColor.copy(alpha = 0.5f)) },
+                                        text = {
+                                            Text(
+                                                stringResource(R.string.no_more_tags),
+                                                color = dialogContentColor.copy(alpha = 0.5f)
+                                            )
+                                        },
                                         onClick = { showTagMenu = false }
                                     )
                                 } else {
@@ -228,11 +278,18 @@ fun EditActivityDialog(
                                         color = Color.Transparent,
                                         modifier = Modifier
                                             .padding(2.dp)
-                                            .border(1.dp, dialogContentColor.copy(alpha = 0.3f), RoundedCornerShape(4.dp))
+                                            .border(
+                                                1.dp,
+                                                dialogContentColor.copy(alpha = 0.3f),
+                                                RoundedCornerShape(4.dp)
+                                            )
                                     ) {
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                                            modifier = Modifier.padding(
+                                                horizontal = 4.dp,
+                                                vertical = 2.dp
+                                            )
                                         ) {
                                             Icon(
                                                 Icons.AutoMirrored.Filled.Label,
@@ -287,11 +344,11 @@ fun EditActivityDialog(
                     }
                     Switch(
                         checked = showInQuickPanel,
-                        onCheckedChange = { 
+                        onCheckedChange = {
                             if (it && !showInQuickPanel && quickPanelCount >= 9) {
                                 showLimitWarning.value = true
                             } else {
-                                showInQuickPanel = it 
+                                showInQuickPanel = it
                             }
                         },
                         colors = SwitchDefaults.colors(
@@ -309,13 +366,15 @@ fun EditActivityDialog(
             Button(
                 onClick = {
                     if (name.isNotBlank()) {
-                        onSave(activity.copy(
-                            name = name.trim(),
-                            color = selectedColor,
-                            icon = selectedIconName,
-                            showInQuickPanel = showInQuickPanel,
-                            tagIds = selectedTagIds
-                        ))
+                        onSave(
+                            activity.copy(
+                                name = name.trim(),
+                                color = selectedColor,
+                                icon = selectedIconName,
+                                showInQuickPanel = showInQuickPanel,
+                                tagIds = selectedTagIds
+                            )
+                        )
                     }
                 },
                 enabled = name.isNotBlank(),
@@ -446,7 +505,43 @@ fun EditActivityDialog(
         )
     }
 
+    val isInspect = LocalInspectionMode.current
     LaunchedEffect(Unit) {
-        dummyFocusRequester.requestFocus()
+        if (!isInspect) {
+            dummyFocusRequester.requestFocus()
+        }
+    }
+}
+
+@Preview(showBackground = true, apiLevel = 35)
+@Composable
+fun EditActivityDialogPreview() {
+    val sampleActivity = ActivityItem(
+        id = 1L,
+        name = "Running",
+        icon = "Exercise",
+        color = Color(0xFF6200EE),
+        elapsedSeconds = 754,
+        firstStartDayTime = System.currentTimeMillis() - 3_600_000,
+        tagIds = listOf(1L, 2L)
+    )
+
+    val sampleTags = listOf(
+        TagItem(id = 1L, name = "Sport", color = Color(0xFF4CAF50)),
+        TagItem(id = 2L, name = "Health", color = Color(0xFFFF9800)),
+        TagItem(id = 3L, name = "Work", color = Color(0xFF2196F3))
+    )
+
+    ActitrackerTheme {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            EditActivityDialog(
+                activity = sampleActivity,
+                allTags = sampleTags,
+                onDismiss = {},
+                onSave = {},
+                onDelete = {},
+                isCreating = false
+            )
+        }
     }
 }

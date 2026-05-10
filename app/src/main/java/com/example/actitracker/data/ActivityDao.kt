@@ -10,6 +10,9 @@ interface ActivityDao {
     @Query("SELECT * FROM activities ORDER BY sortOrder ASC, id ASC")
     fun getAllActivities(): Flow<List<ActivityEntity>>
 
+    @Query("SELECT * FROM activities")
+    suspend fun getAllActivitiesSync(): List<ActivityEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertActivityAndGetId(activity: ActivityEntity): Long
 
@@ -38,6 +41,12 @@ interface ActivityDao {
     // Tags
     @Query("SELECT * FROM tags ORDER BY sortOrder ASC, id ASC")
     fun getAllTags(): Flow<List<TagEntity>>
+
+    @Query("SELECT * FROM tags")
+    suspend fun getAllTagsSync(): List<TagEntity>
+
+    @Query("SELECT * FROM activity_tag_cross_ref")
+    suspend fun getAllActivityTagCrossRefsSync(): List<ActivityTagCrossRef>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTag(tag: TagEntity): Long
@@ -68,8 +77,26 @@ interface ActivityDao {
     @Query("SELECT * FROM goals")
     fun getAllGoals(): Flow<List<GoalEntity>>
 
+    @Query("SELECT * FROM goals")
+    suspend fun getAllGoalsSync(): List<GoalEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertGoal(goal: GoalEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTags(tags: List<TagEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertActivities(activities: List<ActivityEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertActivityTagCrossRefs(crossRefs: List<ActivityTagCrossRef>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertGoals(goals: List<GoalEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSessions(sessions: List<ActivityLogEntity>)
 
     @Update
     suspend fun updateGoal(goal: GoalEntity)
@@ -77,7 +104,6 @@ interface ActivityDao {
     @Query("DELETE FROM goals WHERE id = :goalId")
     suspend fun deleteGoal(goalId: Long)
 
-    // Existing queries...
     @Query("SELECT * FROM activity_log WHERE activityId = :activityId AND endTime IS NULL LIMIT 1")
     suspend fun getActiveSession(activityId: Long): ActivityLogEntity?
 

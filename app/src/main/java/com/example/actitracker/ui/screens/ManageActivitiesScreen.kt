@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Label
 import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -41,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,7 +53,6 @@ import com.example.actitracker.R
 import com.example.actitracker.data.model.ActivityItem
 import com.example.actitracker.data.model.GoalItem
 import com.example.actitracker.data.model.TagItem
-import androidx.compose.ui.res.stringResource
 import com.example.actitracker.ui.components.ActivityRow
 import com.example.actitracker.ui.components.ReorderableLazyColumn
 import com.example.actitracker.ui.components.verticalScrollbar
@@ -101,8 +102,8 @@ fun ManageActivitiesScreen(
     onGoalUpdate: (GoalItem) -> Unit = {},
     onGoalCreate: (GoalItem) -> Unit = {},
     onGoalDelete: (Long) -> Unit = {},
-    backgroundColor: Color = MaterialTheme.colorScheme.background,
-    contentColor: Color = MaterialTheme.colorScheme.onBackground,
+    dialogBackgroundColor: Color = MaterialTheme.colorScheme.background,
+    dialogContentColor: Color = MaterialTheme.colorScheme.onBackground,
 ) {
     var selectedTab by remember { mutableStateOf(ManageTab.ACTIVITIES) }
 
@@ -110,6 +111,8 @@ fun ManageActivitiesScreen(
     var editingActivity by remember { mutableStateOf<ActivityItem?>(null) }
     var editingTag by remember { mutableStateOf<TagItem?>(null) }
     var editingGoal by remember { mutableStateOf<GoalItem?>(null) }
+
+    var showRedirectDialog by remember { mutableStateOf(false) }
 
     var itemToDeleteId by remember { mutableStateOf<Long?>(null) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
@@ -119,13 +122,13 @@ fun ManageActivitiesScreen(
 
     Scaffold(
         modifier = modifier,
-        containerColor = backgroundColor,
-        contentColor = contentColor,
+        containerColor = dialogBackgroundColor,
+        contentColor = dialogContentColor,
         topBar = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(backgroundColor)
+                    .background(dialogBackgroundColor)
             ) {
                 Box(
                     modifier = Modifier
@@ -143,7 +146,7 @@ fun ManageActivitiesScreen(
                         Icon(
                             painter = painterResource(R.drawable.ic_back_arrow_outline),
                             contentDescription = stringResource(R.string.back_button),
-                            tint = contentColor,
+                            tint = dialogContentColor,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -170,8 +173,8 @@ fun ManageActivitiesScreen(
                                     ),
                                     contentDescription = stringResource(tab.contentDescriptionRes),
                                     tint = if (isSelected) {
-                                        contentColor
-                                    } else contentColor.copy(alpha = 0.5f),
+                                        dialogContentColor
+                                    } else dialogContentColor.copy(alpha = 0.5f),
                                     modifier = Modifier.size(24.dp)
                                 )
 
@@ -182,7 +185,7 @@ fun ManageActivitiesScreen(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .height(3.dp)
-                                            .background(contentColor)
+                                            .background(dialogContentColor)
                                     )
                                 } else {
                                     Spacer(modifier = Modifier.height(3.dp))
@@ -191,20 +194,41 @@ fun ManageActivitiesScreen(
                         }
                     }
 
-                    Box(
+                    Row(
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
-                            .width(48.dp)
-                            .fillMaxHeight()
-                            .clickable { showCreateDialog = true },
-                        contentAlignment = Alignment.Center
+                            .fillMaxHeight(),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_add_outline),
-                            contentDescription = stringResource(R.string.add_button),
-                            tint = contentColor,
-                            modifier = Modifier.size(24.dp)
-                        )
+                        Box(
+                            modifier = Modifier
+                                .width(48.dp)
+                                .fillMaxHeight()
+                                .clickable { showRedirectDialog = true },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.SaveAlt,
+                                contentDescription = stringResource(R.string.settings_import_export),
+                                tint = dialogContentColor,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .width(48.dp)
+                                .fillMaxHeight()
+                                .clickable { showCreateDialog = true },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_add_outline),
+                                contentDescription = stringResource(R.string.add_button),
+                                tint = dialogContentColor,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                     }
                 }
 
@@ -212,7 +236,7 @@ fun ManageActivitiesScreen(
                     text = stringResource(selectedTab.titleRes),
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
-                    color = contentColor,
+                    color = dialogContentColor,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(vertical = 4.dp)
@@ -242,8 +266,8 @@ fun ManageActivitiesScreen(
                             activity = activity,
                             isActive = false,
                             allTags = tags,
-                            backgroundColor = backgroundColor,
-                            contentColor = contentColor,
+                            backgroundColor = dialogBackgroundColor,
+                            contentColor = dialogContentColor,
                             showTimer = false,
                             showFirstStart = false,
                             onClick = { editingActivity = activity }
@@ -265,7 +289,7 @@ fun ManageActivitiesScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(backgroundColor)
+                                .background(dialogBackgroundColor)
                         ) {
                             Row(
                                 modifier = Modifier
@@ -284,13 +308,13 @@ fun ManageActivitiesScreen(
                                 Text(
                                     text = tag.name,
                                     fontSize = 16.sp,
-                                    color = contentColor
+                                    color = dialogContentColor
                                 )
                             }
                             HorizontalDivider(
                                 modifier = Modifier.padding(horizontal = 8.dp),
                                 thickness = 1.dp,
-                                color = contentColor.copy(alpha = 0.1f)
+                                color = dialogContentColor.copy(alpha = 0.1f)
                             )
                         }
                     }
@@ -310,7 +334,7 @@ fun ManageActivitiesScreen(
                                     Icon(
                                         imageVector = Icons.Default.Flag,
                                         contentDescription = null,
-                                        tint = contentColor,
+                                        tint = dialogContentColor,
                                         modifier = Modifier.size(24.dp)
                                     )
                                     Spacer(modifier = Modifier.width(12.dp))
@@ -318,7 +342,7 @@ fun ManageActivitiesScreen(
                                         Text(
                                             text = goal.name,
                                             fontSize = 16.sp,
-                                            color = contentColor
+                                            color = dialogContentColor
                                         )
                                         Text(
                                             text = stringResource(
@@ -327,14 +351,14 @@ fun ManageActivitiesScreen(
                                                 goal.targetSeconds / 3600
                                             ),
                                             fontSize = 12.sp,
-                                            color = contentColor.copy(alpha = 0.6f)
+                                            color = dialogContentColor.copy(alpha = 0.6f)
                                         )
                                     }
                                 }
                                 HorizontalDivider(
                                     modifier = Modifier.padding(horizontal = 8.dp),
                                     thickness = 1.dp,
-                                    color = contentColor.copy(alpha = 0.1f)
+                                    color = dialogContentColor.copy(alpha = 0.1f)
                                 )
                             }
                         }
@@ -354,27 +378,29 @@ fun ManageActivitiesScreen(
                     onDismiss = { showCreateDialog = false },
                     onSave = { onActivityCreate(it); showCreateDialog = false },
                     onDelete = {},
-                    dialogBackgroundColor = contentColor,
-                    dialogContentColor = backgroundColor,
+                    dialogBackgroundColor = dialogContentColor,
+                    dialogContentColor = dialogBackgroundColor,
                     quickPanelCount = activities.count { it.showInQuickPanel }
                 )
+
                 ManageTab.TAGS -> EditTagDialog(
                     tag = TagItem(-1, "", Color.Cyan),
                     isCreating = true,
                     onDismiss = { showCreateDialog = false },
                     onSave = { onTagCreate(it); showCreateDialog = false },
                     onDelete = {},
-                    dialogBackgroundColor = contentColor,
-                    dialogContentColor = backgroundColor
+                    dialogBackgroundColor = dialogContentColor,
+                    dialogContentColor = dialogBackgroundColor
                 )
+
                 ManageTab.GOALS -> EditGoalDialog(
                     goal = GoalItem(-1, "", 0, "DAILY"),
                     isCreating = true,
                     onDismiss = { showCreateDialog = false },
                     onSave = { onGoalCreate(it); showCreateDialog = false },
                     onDelete = {},
-                    dialogBackgroundColor = contentColor,
-                    dialogContentColor = backgroundColor
+                    dialogBackgroundColor = dialogContentColor,
+                    dialogContentColor = dialogBackgroundColor
                 )
             }
         }
@@ -389,8 +415,8 @@ fun ManageActivitiesScreen(
                         onDismiss = { editingActivity = null },
                         onSave = { onActivityUpdate(it); editingActivity = null },
                         onDelete = { itemToDeleteId = activity.id; showDeleteConfirm = true },
-                        dialogBackgroundColor = contentColor,
-                        dialogContentColor = backgroundColor,
+                        dialogBackgroundColor = dialogContentColor,
+                        dialogContentColor = dialogBackgroundColor,
                         quickPanelCount = activities.count { it.showInQuickPanel }
                     )
                 }
@@ -403,8 +429,8 @@ fun ManageActivitiesScreen(
                         onDismiss = { editingTag = null },
                         onSave = { onTagUpdate(it); editingTag = null },
                         onDelete = { itemToDeleteId = tag.id; showDeleteConfirm = true },
-                        dialogBackgroundColor = contentColor,
-                        dialogContentColor = backgroundColor
+                        dialogBackgroundColor = dialogContentColor,
+                        dialogContentColor = dialogBackgroundColor
                     )
                 }
             }
@@ -416,11 +442,63 @@ fun ManageActivitiesScreen(
                         onDismiss = { editingGoal = null },
                         onSave = { onGoalUpdate(it); editingGoal = null },
                         onDelete = { itemToDeleteId = goal.id; showDeleteConfirm = true },
-                        dialogBackgroundColor = contentColor,
-                        dialogContentColor = backgroundColor
+                        dialogBackgroundColor = dialogContentColor,
+                        dialogContentColor = dialogBackgroundColor
                     )
                 }
             }
+        }
+
+        if (showRedirectDialog) {
+            AlertDialog(
+                onDismissRequest = { showRedirectDialog = false },
+                containerColor = dialogContentColor,
+                title = {
+                    Text(
+                        text = stringResource(R.string.redirect_import_title),
+                        color = dialogBackgroundColor
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(
+                            R.string.redirect_import_message,
+                            stringResource(R.string.settings_data_management)
+                        ),
+                        color = dialogBackgroundColor.copy(alpha = 0.8f)
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showRedirectDialog = false
+                            navController.navigate("settings?highlight=true") {
+                                launchSingleTop = true
+                            }
+                        },
+                        shape = RectangleShape,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = dialogBackgroundColor,
+                            contentColor = dialogContentColor
+                        )
+                    ) {
+                        Text(
+                            text = stringResource(R.string.go_to_settings),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showRedirectDialog = false },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = dialogBackgroundColor
+                        )
+                    ) {
+                        Text(stringResource(R.string.cancel_button))
+                    }
+                }
+            )
         }
 
         if (showDeleteConfirm && itemToDeleteId != null) {
@@ -452,7 +530,9 @@ fun ManageActivitiesScreen(
                     ) { Text(stringResource(R.string.yes_confirm)) }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showDeleteConfirm = false }) { Text(stringResource(R.string.cancel_button)) }
+                    TextButton(onClick = {
+                        showDeleteConfirm = false
+                    }) { Text(stringResource(R.string.cancel_button)) }
                 }
             )
         }

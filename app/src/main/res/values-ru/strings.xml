@@ -54,6 +54,30 @@
     <string name="settings_reverted">Изменения отменены</string>
     <string name="settings_saved">Изменения сохранены</string>
 
+    <!-- Data Management -->
+    <string name="settings_data_management">Управление данными</string>
+    <string name="settings_import_export">Импорт / Экспорт</string>
+    <string name="settings_import_export_desc">Резервное копирование и восстановление</string>
+    <string name="export_title">Экспорт данных</string>
+    <string name="import_title">Импорт данных</string>
+    <string name="export_activities">Активности</string>
+    <string name="export_tags">Теги</string>
+    <string name="export_goals">Цели</string>
+    <string name="export_logs">Данные таймеров</string>
+    <string name="export_settings">Настройки приложения</string>
+    <string name="export_button">Экспортировать</string>
+    <string name="import_button">Импортировать</string>
+    <string name="import_success">Данные успешно импортированы</string>
+    <string name="export_success">Данные успешно экспортированы</string>
+    <string name="select_all">Выбрать всё</string>
+    <string name="import_confirm_title">Импортировать данные?</string>
+    <string name="import_confirm_desc">Это действие нельзя отменить. Выбранные данные (активности, теги, цели и записи таймеров) будут заменены или объединены с импортируемыми значениями.</string>
+    <string name="import_confirm_question">Вы действительно хотите продолжить импорт?</string>
+    <string name="continue_button">Продолжить</string>
+    <string name="redirect_import_title">Импорт / Экспорт</string>
+    <string name="redirect_import_message">Для импорта или экспорта ваших активностей, тегов, целей и данных таймеров, пожалуйста, перейдите в раздел «%1$s» в Настройках.</string>
+    <string name="go_to_settings">Перейти в Настройки</string>
+
     <!-- Edit Activity Dialog -->
     <string name="create_activity_title">Создать активность</string>
     <string name="edit_activity_title">Изменить активность</string>

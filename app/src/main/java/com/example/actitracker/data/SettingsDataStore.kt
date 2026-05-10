@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.json.JSONObject
 
@@ -51,6 +52,29 @@ class SettingsDataStore(private val context: Context) {
     suspend fun saveFirstStartTimes(times: Map<Long, Long>) {
         context.dataStore.edit { prefs ->
             prefs[FIRST_START_TIMES_KEY] = serializeFirstStartTimes(times)
+        }
+    }
+
+    suspend fun getAllSettings(): Map<String, Any> {
+        val prefs = context.dataStore.data.first()
+        val result = mutableMapOf<String, Any>()
+        prefs[BACKGROUND_COLOR_KEY]?.let { result["background_color"] = it }
+        prefs[CONTENT_COLOR_KEY]?.let { result["content_color"] = it }
+        prefs[FIRST_START_TIMES_KEY]?.let { result["first_start_times"] = it }
+        return result
+    }
+
+    suspend fun restoreSettings(settings: Map<String, Any>) {
+        context.dataStore.edit { prefs ->
+            (settings["background_color"] as? Number)?.toInt()?.let {
+                prefs[BACKGROUND_COLOR_KEY] = it
+            }
+            (settings["content_color"] as? Number)?.toInt()?.let {
+                prefs[CONTENT_COLOR_KEY] = it
+            }
+            (settings["first_start_times"] as? String)?.let {
+                prefs[FIRST_START_TIMES_KEY] = it
+            }
         }
     }
 
