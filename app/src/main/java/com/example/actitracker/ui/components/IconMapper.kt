@@ -12,7 +12,6 @@ data class IconInfo(
 )
 
 object IconMapper {
-    private val iconList = mutableListOf<IconInfo>()
 
     fun getCategoryRes(category: String): Int? {
         return when (category) {
