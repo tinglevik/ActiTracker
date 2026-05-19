@@ -58,6 +58,13 @@
     <string name="settings_data_management">Управление данными</string>
     <string name="settings_import_export">Импорт / Экспорт</string>
     <string name="settings_import_export_desc">Резервное копирование и восстановление</string>
+    <string name="settings_clear_data">Очистить данные</string>
+    <string name="settings_clear_data_desc">Удалить выбранные данные приложения и кэш</string>
+    <string name="clear_data_title">Очистить данные</string>
+    <string name="clear_button">Очистить</string>
+    <string name="clear_confirm_title">Удалить выбранные данные?</string>
+    <string name="clear_confirm_desc">Вы действительно хотите удалить: %1$s? Это действие нельзя отменить.</string>
+    <string name="clear_success">Данные успешно удалены</string>
     <string name="export_title">Экспорт данных</string>
     <string name="import_title">Импорт данных</string>
     <string name="export_activities">Активности</string>

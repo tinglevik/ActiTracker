@@ -58,6 +58,13 @@
     <string name="settings_data_management">Gestión de datos</string>
     <string name="settings_import_export">Importar / Exportar</string>
     <string name="settings_import_export_desc">Copia de seguridad y restauración de sus datos</string>
+    <string name="settings_clear_data">Borrar datos</string>
+    <string name="settings_clear_data_desc">Eliminar los datos seleccionados de la aplicación y el caché</string>
+    <string name="clear_data_title">Borrar datos</string>
+    <string name="clear_button">Borrar</string>
+    <string name="clear_confirm_title">¿Eliminar los datos seleccionados?</string>
+    <string name="clear_confirm_desc">¿Está seguro de que desea eliminar: %1$s? Esta acción no se puede deshacer.</string>
+    <string name="clear_success">Datos borrados con éxito</string>
     <string name="export_title">Exportar datos</string>
     <string name="import_title">Importar datos</string>
     <string name="export_activities">Actividades</string>

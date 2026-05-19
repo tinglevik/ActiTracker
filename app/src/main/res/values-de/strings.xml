@@ -58,6 +58,13 @@
     <string name="settings_data_management">Datenverwaltung</string>
     <string name="settings_import_export">Import / Export</string>
     <string name="settings_import_export_desc">Sichern und Wiederherstellen Ihrer Daten</string>
+    <string name="settings_clear_data">Daten löschen</string>
+    <string name="settings_clear_data_desc">Ausgewählte App-Daten und Cache löschen</string>
+    <string name="clear_data_title">Daten löschen</string>
+    <string name="clear_button">Löschen</string>
+    <string name="clear_confirm_title">Ausgewählte Daten löschen?</string>
+    <string name="clear_confirm_desc">Sind Sie sicher, dass Sie %1$s löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="clear_success">Daten erfolgreich gelöscht</string>
     <string name="export_title">Daten exportieren</string>
     <string name="import_title">Daten importieren</string>
     <string name="export_activities">Aktivitäten</string>

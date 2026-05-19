@@ -146,6 +146,24 @@ class SettingsViewModel(
         }
     }
 
+    fun clearData(
+        activities: Boolean,
+        tags: Boolean,
+        goals: Boolean,
+        logs: Boolean,
+        settings: Boolean,
+        context: Context
+    ) {
+        viewModelScope.launch {
+            try {
+                backupManager.clearData(activities, tags, goals, logs, settings)
+                showSnackbar(context.getString(R.string.clear_success))
+            } catch (e: Exception) {
+                showSnackbar("Clear data failed: ${e.message}")
+            }
+        }
+    }
+
     private fun Color.toArgbInt(): Int {
         return android.graphics.Color.argb(
             (alpha * 255).toInt(),

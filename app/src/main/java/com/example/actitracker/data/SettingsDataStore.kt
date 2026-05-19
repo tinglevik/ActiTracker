@@ -78,6 +78,14 @@ class SettingsDataStore(private val context: Context) {
         }
     }
 
+    suspend fun clearAllSettings() {
+        context.dataStore.edit { prefs ->
+            prefs.remove(BACKGROUND_COLOR_KEY)
+            prefs.remove(CONTENT_COLOR_KEY)
+            prefs.remove(FIRST_START_TIMES_KEY)
+        }
+    }
+
     private fun serializeFirstStartTimes(times: Map<Long, Long>): String {
         val json = JSONObject()
         times.forEach { (id, time) -> json.put(id.toString(), time) }

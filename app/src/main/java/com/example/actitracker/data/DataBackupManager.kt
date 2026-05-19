@@ -54,4 +54,19 @@ class DataBackupManager(
         if (importLogs) backupData.activityLogs?.let { dao.insertSessions(it) }
         if (importSettings) backupData.settings?.let { settingsDataStore.restoreSettings(it) }
     }
+
+    suspend fun clearData(
+        activities: Boolean,
+        tags: Boolean,
+        goals: Boolean,
+        logs: Boolean,
+        settings: Boolean
+    ) {
+        if (activities) dao.clearAllActivities()
+        if (tags) dao.clearAllTags()
+        if (activities || tags) dao.clearAllActivityTagRefs()
+        if (goals) dao.clearAllGoals()
+        if (logs) dao.clearAllLogs()
+        if (settings) settingsDataStore.clearAllSettings()
+    }
 }

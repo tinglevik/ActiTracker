@@ -58,6 +58,13 @@
     <string name="settings_data_management">Data Management</string>
     <string name="settings_import_export">Import / Export</string>
     <string name="settings_import_export_desc">Backup and restore your data</string>
+    <string name="settings_clear_data">Clear Data</string>
+    <string name="settings_clear_data_desc">Delete selected app data and cache</string>
+    <string name="clear_data_title">Clear Data</string>
+    <string name="clear_button">Clear</string>
+    <string name="clear_confirm_title">Delete selected data?</string>
+    <string name="clear_confirm_desc">Are you sure you want to delete: %1$s? This action cannot be undone.</string>
+    <string name="clear_success">Data cleared successfully</string>
     <string name="export_title">Export Data</string>
     <string name="import_title">Import Data</string>
     <string name="export_activities">Activities</string>

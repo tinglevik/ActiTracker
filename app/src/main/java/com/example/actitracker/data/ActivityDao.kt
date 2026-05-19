@@ -188,4 +188,19 @@ interface ActivityDao {
 
     @Query("UPDATE activities SET showInQuickPanel = :show WHERE id = :id")
     suspend fun setShowInQuickPanel(id: Long, show: Boolean)
+
+    @Query("DELETE FROM activities")
+    suspend fun clearAllActivities()
+
+    @Query("DELETE FROM tags")
+    suspend fun clearAllTags()
+
+    @Query("DELETE FROM activity_tag_cross_ref")
+    suspend fun clearAllActivityTagRefs()
+
+    @Query("DELETE FROM goals")
+    suspend fun clearAllGoals()
+
+    @Query("DELETE FROM activity_log")
+    suspend fun clearAllLogs()
 }

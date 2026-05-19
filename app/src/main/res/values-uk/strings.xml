@@ -58,6 +58,13 @@
     <string name="settings_data_management">Керування даними</string>
     <string name="settings_import_export">Імпорт / Експорт</string>
     <string name="settings_import_export_desc">Резервне копіювання та відновлення ваших даних</string>
+    <string name="settings_clear_data">Очистити дані</string>
+    <string name="settings_clear_data_desc">Видалити вибрані дані додатка та кеш</string>
+    <string name="clear_data_title">Очистити дані</string>
+    <string name="clear_button">Очистити</string>
+    <string name="clear_confirm_title">Видалити вибрані дані?</string>
+    <string name="clear_confirm_desc">Ви дійсно бажаєте видалити: %1$s? Цю дію неможливо скасувати.</string>
+    <string name="clear_success">Дані успішно очищено</string>
     <string name="export_title">Експорт даних</string>
     <string name="import_title">Імпорт даних</string>
     <string name="export_activities">Активності</string>

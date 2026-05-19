@@ -2,8 +2,11 @@ package com.example.actitracker.ui.screens
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,6 +29,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material3.AlertDialog
@@ -37,6 +41,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -126,10 +131,15 @@ fun SettingsScreenContent(
     var colorBeforeContrastFlow by remember { mutableStateOf<Color?>(null) }
 
     var showImportExportDialog by remember { mutableStateOf(false) }
-    var showImportSelectionDialog by remember { mutableStateOf(false) }
-    var showImportFinalConfirmation by remember { mutableStateOf(false) }
+    var showImportFlow by remember { mutableStateOf(false) }
+    var importIsConfirmStep by remember { mutableStateOf(false) }
+    
+    var showClearDataFlow by remember { mutableStateOf(false) }
+    var clearDataIsConfirmStep by remember { mutableStateOf(false) }
+
     var importJsonContent by remember { mutableStateOf<String?>(null) }
     var pendingImportOptions by remember { mutableStateOf<BackupOptions?>(null) }
+    var pendingClearOptions by remember { mutableStateOf<BackupOptions?>(null) }
     var exportOptions by remember { mutableStateOf<BackupOptions?>(null) }
     val context = LocalContext.current
     val exportSuccessMessage = stringResource(R.string.export_success)
@@ -168,7 +178,8 @@ fun SettingsScreenContent(
             try {
                 context.contentResolver.openInputStream(it)?.use { inputStream ->
                     importJsonContent = InputStreamReader(inputStream).readText()
-                    showImportSelectionDialog = true
+                    importIsConfirmStep = false
+                    showImportFlow = true
                 }
             } catch (e: Exception) {
                 settingsViewModel.showSnackbar("Import failed: ${e.message}")
@@ -335,6 +346,18 @@ fun SettingsScreenContent(
                                 .value
                         )
 
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        SettingsActionCard(
+                            title = stringResource(R.string.settings_clear_data),
+                            subtitle = stringResource(R.string.settings_clear_data_desc),
+                            icon = Icons.Default.Delete,
+                            onClick = { 
+                                clearDataIsConfirmStep = false
+                                showClearDataFlow = true 
+                            }
+                        )
+
                         Spacer(modifier = Modifier.height(24.dp))
 
                         Text(
@@ -366,79 +389,60 @@ fun SettingsScreenContent(
                         importLauncher.launch(
                             arrayOf("application/json", "text/plain", "*/*")
                         )
-                    },
-                    contentColor = savedContentColor
-                )
-            }
-
-            if (showImportSelectionDialog && importJsonContent != null) {
-                ImportSelectionDialog(
-                    onDismiss = {
-                        showImportSelectionDialog = false
-                        importJsonContent = null
-                    },
-                    onConfirm = { activities, tags, goals, logs, settings ->
-                        pendingImportOptions =
-                            BackupOptions(activities, tags, goals, logs, settings)
-                        showImportSelectionDialog = false
-                        showImportFinalConfirmation = true
                     }
                 )
             }
 
-            if (showImportFinalConfirmation
-                && importJsonContent != null
-                && pendingImportOptions != null
-            ) {
-                val fixedCardBg = Color(0xFF1E1E1E)
-                val fixedTitleColor = Color(0xFFF5F5F5)
-
-                AlertDialog(
-                    onDismissRequest = { showImportFinalConfirmation = false },
-                    containerColor = fixedCardBg,
-                    title = {
-                        Text(
-                            stringResource(R.string.import_confirm_title),
-                            color = fixedTitleColor
+            if (showImportFlow && importJsonContent != null) {
+                ImportFlowContainer(
+                    isConfirmStep = importIsConfirmStep,
+                    pendingOptions = pendingImportOptions,
+                    onDismiss = {
+                        showImportFlow = false
+                        importJsonContent = null
+                    },
+                    onGoToConfirm = { options ->
+                        pendingImportOptions = options
+                        importIsConfirmStep = true
+                    },
+                    onFinalConfirm = {
+                        settingsViewModel.restoreBackup(
+                            json = importJsonContent!!,
+                            activities = pendingImportOptions!!.activities,
+                            tags = pendingImportOptions!!.tags,
+                            goals = pendingImportOptions!!.goals,
+                            logs = pendingImportOptions!!.logs,
+                            settings = pendingImportOptions!!.settings,
+                            context = context
                         )
+                        showImportFlow = false
+                        showImportExportDialog = false
+                        importJsonContent = null
+                        pendingImportOptions = null
+                    }
+                )
+            }
+
+            if (showClearDataFlow) {
+                ClearDataFlowContainer(
+                    isConfirmStep = clearDataIsConfirmStep,
+                    pendingOptions = pendingClearOptions,
+                    onDismiss = { showClearDataFlow = false },
+                    onGoToConfirm = { options ->
+                        pendingClearOptions = options
+                        clearDataIsConfirmStep = true
                     },
-                    text = {
-                        Column {
-                            Text(
-                                stringResource(R.string.import_confirm_desc),
-                                color = fixedTitleColor.copy(alpha = 0.8f)
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                stringResource(R.string.import_confirm_question),
-                                color = fixedTitleColor,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            settingsViewModel.restoreBackup(
-                                json = importJsonContent!!,
-                                activities = pendingImportOptions!!.activities,
-                                tags = pendingImportOptions!!.tags,
-                                goals = pendingImportOptions!!.goals,
-                                logs = pendingImportOptions!!.logs,
-                                settings = pendingImportOptions!!.settings,
-                                context = context
-                            )
-                            showImportFinalConfirmation = false
-                            showImportExportDialog = false
-                            importJsonContent = null
-                            pendingImportOptions = null
-                        }) {
-                            Text(stringResource(R.string.continue_button))
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showImportFinalConfirmation = false }) {
-                            Text(stringResource(R.string.cancel_button))
-                        }
+                    onFinalConfirm = {
+                        settingsViewModel.clearData(
+                            activities = pendingClearOptions!!.activities,
+                            tags = pendingClearOptions!!.tags,
+                            goals = pendingClearOptions!!.goals,
+                            logs = pendingClearOptions!!.logs,
+                            settings = pendingClearOptions!!.settings,
+                            context = context
+                        )
+                        showClearDataFlow = false
+                        pendingClearOptions = null
                     }
                 )
             }
@@ -535,6 +539,212 @@ fun SettingsScreenContent(
 }
 
 @Composable
+fun ImportFlowContainer(
+    isConfirmStep: Boolean,
+    pendingOptions: BackupOptions?,
+    onDismiss: () -> Unit,
+    onGoToConfirm: (BackupOptions) -> Unit,
+    onFinalConfirm: () -> Unit
+) {
+    val fixedCardBg = Color(0xFF1E1E1E)
+    val fixedTitleColor = Color(0xFFF5F5F5)
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // STEP 1: Selection (Fade exit only)
+            var activities by remember { mutableStateOf(true) }
+            var tags by remember { mutableStateOf(true) }
+            var goals by remember { mutableStateOf(true) }
+            var logs by remember { mutableStateOf(true) }
+            var settings by remember { mutableStateOf(true) }
+
+            AnimatedVisibility(
+                visible = !isConfirmStep,
+                enter = fadeIn(tween(0)),
+                exit = fadeOut(tween(1500))
+            ) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(0.85f).wrapContentHeight(),
+                    shape = RoundedCornerShape(28.dp),
+                    color = fixedCardBg
+                ) {
+                    Column(modifier = Modifier.padding(24.dp)) {
+                        Text(stringResource(R.string.import_title), color = fixedTitleColor, fontSize = 24.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(stringResource(R.string.import_confirm_desc), color = fixedTitleColor.copy(alpha = 0.7f), fontSize = 14.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = activities, onCheckedChange = { activities = it })
+                            Text(stringResource(R.string.export_activities), color = fixedTitleColor)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = tags, onCheckedChange = { tags = it })
+                            Text(stringResource(R.string.export_tags), color = fixedTitleColor)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = goals, onCheckedChange = { goals = it })
+                            Text(stringResource(R.string.export_goals), color = fixedTitleColor)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = logs, onCheckedChange = { logs = it })
+                            Text(stringResource(R.string.export_logs), color = fixedTitleColor)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = settings, onCheckedChange = { settings = it })
+                            Text(stringResource(R.string.export_settings), color = fixedTitleColor)
+                        }
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel_button)) }
+                            TextButton(onClick = { onGoToConfirm(BackupOptions(activities, tags, goals, logs, settings)) }) {
+                                Text(stringResource(R.string.import_button))
+                            }
+                        }
+                    }
+                }
+            }
+
+            // STEP 2: Confirmation (Instant appearance)
+            if (isConfirmStep && pendingOptions != null) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(0.85f).wrapContentHeight(),
+                    shape = RoundedCornerShape(28.dp),
+                    color = fixedCardBg
+                ) {
+                    Column(modifier = Modifier.padding(24.dp)) {
+                        Text(stringResource(R.string.import_confirm_title), color = fixedTitleColor, fontSize = 24.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(stringResource(R.string.import_confirm_desc), color = fixedTitleColor.copy(alpha = 0.8f))
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(stringResource(R.string.import_confirm_question), color = fixedTitleColor, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel_button)) }
+                            TextButton(onClick = onFinalConfirm) { Text(stringResource(R.string.continue_button)) }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ClearDataFlowContainer(
+    isConfirmStep: Boolean,
+    pendingOptions: BackupOptions?,
+    onDismiss: () -> Unit,
+    onGoToConfirm: (BackupOptions) -> Unit,
+    onFinalConfirm: () -> Unit
+) {
+    val fixedCardBg = Color(0xFF1E1E1E)
+    val fixedTitleColor = Color(0xFFF5F5F5)
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // STEP 1: Selection
+            var activities by remember { mutableStateOf(false) }
+            var tags by remember { mutableStateOf(false) }
+            var goals by remember { mutableStateOf(false) }
+            var logs by remember { mutableStateOf(false) }
+            var settings by remember { mutableStateOf(false) }
+
+            AnimatedVisibility(
+                visible = !isConfirmStep,
+                enter = fadeIn(tween(0)),
+                exit = fadeOut(tween(1500))
+            ) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(0.85f).wrapContentHeight(),
+                    shape = RoundedCornerShape(28.dp),
+                    color = fixedCardBg
+                ) {
+                    Column(modifier = Modifier.padding(24.dp)) {
+                        Text(stringResource(R.string.clear_data_title), color = fixedTitleColor, fontSize = 24.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = activities, onCheckedChange = { activities = it })
+                            Text(stringResource(R.string.export_activities), color = fixedTitleColor)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = tags, onCheckedChange = { tags = it })
+                            Text(stringResource(R.string.export_tags), color = fixedTitleColor)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = goals, onCheckedChange = { goals = it })
+                            Text(stringResource(R.string.export_goals), color = fixedTitleColor)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = logs, onCheckedChange = { logs = it })
+                            Text(stringResource(R.string.export_logs), color = fixedTitleColor)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = settings, onCheckedChange = { settings = it })
+                            Text(stringResource(R.string.export_settings), color = fixedTitleColor)
+                        }
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel_button)) }
+                            TextButton(
+                                onClick = { onGoToConfirm(BackupOptions(activities, tags, goals, logs, settings)) },
+                                enabled = activities || tags || goals || logs || settings
+                            ) {
+                                Text(stringResource(R.string.clear_button), color = Color.Red)
+                            }
+                        }
+                    }
+                }
+            }
+
+            // STEP 2: Confirmation
+            if (isConfirmStep && pendingOptions != null) {
+                val deletedItems = mutableListOf<String>()
+                if (pendingOptions.activities) deletedItems.add(stringResource(R.string.export_activities))
+                if (pendingOptions.tags) deletedItems.add(stringResource(R.string.export_tags))
+                if (pendingOptions.goals) deletedItems.add(stringResource(R.string.export_goals))
+                if (pendingOptions.logs) deletedItems.add(stringResource(R.string.export_logs))
+                if (pendingOptions.settings) deletedItems.add(stringResource(R.string.export_settings))
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth(0.85f).wrapContentHeight(),
+                    shape = RoundedCornerShape(28.dp),
+                    color = fixedCardBg
+                ) {
+                    Column(modifier = Modifier.padding(24.dp)) {
+                        Text(stringResource(R.string.clear_confirm_title), color = fixedTitleColor, fontSize = 24.sp)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(stringResource(R.string.clear_confirm_desc, deletedItems.joinToString(", ")), color = fixedTitleColor.copy(alpha = 0.8f))
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel_button)) }
+                            TextButton(onClick = onFinalConfirm) { Text(stringResource(R.string.clear_button), color = Color.Red) }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun ImportExportDialog(
     onDismiss: () -> Unit,
     onExport: (
@@ -545,7 +755,6 @@ fun ImportExportDialog(
         settings: Boolean
     ) -> Unit,
     onImport: () -> Unit,
-    contentColor: Color
 ) {
     var activities by remember { mutableStateOf(true) }
     var tags by remember { mutableStateOf(true) }
@@ -606,81 +815,6 @@ fun ImportExportDialog(
                 TextButton(onClick = onDismiss) {
                     Text(stringResource(R.string.cancel_button))
                 }
-            }
-        }
-    )
-}
-
-@Composable
-fun ImportSelectionDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (
-        activities: Boolean,
-        tags: Boolean,
-        goals: Boolean,
-        logs: Boolean,
-        settings: Boolean
-    ) -> Unit
-) {
-    var activities by remember { mutableStateOf(true) }
-    var tags by remember { mutableStateOf(true) }
-    var goals by remember { mutableStateOf(true) }
-    var logs by remember { mutableStateOf(true) }
-    var settings by remember { mutableStateOf(true) }
-
-    val fixedCardBg = Color(0xFF1E1E1E)
-    val fixedTitleColor = Color(0xFFF5F5F5)
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = fixedCardBg,
-        title = { Text(stringResource(R.string.import_title), color = fixedTitleColor) },
-        text = {
-            Column {
-                Text(
-                    stringResource(R.string.import_confirm_desc),
-                    color = fixedTitleColor.copy(alpha = 0.7f),
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = activities, onCheckedChange = { activities = it })
-                    Text(stringResource(R.string.export_activities), color = fixedTitleColor)
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = tags, onCheckedChange = { tags = it })
-                    Text(stringResource(R.string.export_tags), color = fixedTitleColor)
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = goals, onCheckedChange = { goals = it })
-                    Text(stringResource(R.string.export_goals), color = fixedTitleColor)
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = logs, onCheckedChange = { logs = it })
-                    Text(stringResource(R.string.export_logs), color = fixedTitleColor)
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = settings, onCheckedChange = { settings = it })
-                    Text(stringResource(R.string.export_settings), color = fixedTitleColor)
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                onConfirm(
-                    activities,
-                    tags,
-                    goals,
-                    logs,
-                    settings
-                )
-            }) {
-                Text(stringResource(R.string.import_button))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel_button))
             }
         }
     )
