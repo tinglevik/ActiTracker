@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -64,6 +63,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -122,15 +122,15 @@ fun TodayScreen(
         selectedTagFilterId
     ) {
         activities.filter { activity ->
-            val matchesSearch = searchQuery.isBlank() || 
+            val matchesSearch = searchQuery.isBlank() ||
                     activity.name.contains(searchQuery, ignoreCase = true)
-            
+
             val matchesTag = when (selectedTagFilterId) {
                 null -> true // All tags
                 -1L -> activity.tagIds.isEmpty() // No tag
                 else -> activity.tagIds.contains(selectedTagFilterId)
             }
-            
+
             matchesSearch && matchesTag
         }
     }
@@ -208,9 +208,9 @@ fun TodayScreen(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
                     isActive = isSearchActive,
-                    onActiveChange = { 
+                    onActiveChange = {
                         isSearchActive = it
-                        if (!it) searchQuery = "" 
+                        if (!it) searchQuery = ""
                     },
                     focusRequester = focusRequester,
                     contentColor = contentColor,
@@ -234,7 +234,8 @@ fun TodayScreen(
                         val filterText = when (selectedTagFilterId) {
                             null -> stringResource(R.string.filter_all_tags)
                             -1L -> stringResource(R.string.filter_no_tag)
-                            else -> allTags.find { it.id == selectedTagFilterId }?.name ?: stringResource(R.string.activity_tag_label)
+                            else -> allTags.find { it.id == selectedTagFilterId }?.name
+                                ?: stringResource(R.string.activity_tag_label)
                         }
                         Text(
                             text = filterText,
@@ -256,7 +257,12 @@ fun TodayScreen(
                         modifier = Modifier.background(backgroundColor)
                     ) {
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.filter_all_tags), color = contentColor) },
+                            text = {
+                                Text(
+                                    stringResource(R.string.filter_all_tags),
+                                    color = contentColor
+                                )
+                            },
                             onClick = {
                                 selectedTagFilterId = null
                                 showFilterMenu = false
@@ -272,7 +278,12 @@ fun TodayScreen(
                             )
                         }
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.filter_no_tag), color = contentColor) },
+                            text = {
+                                Text(
+                                    stringResource(R.string.filter_no_tag),
+                                    color = contentColor
+                                )
+                            },
                             onClick = {
                                 selectedTagFilterId = -1L
                                 showFilterMenu = false
@@ -439,8 +450,7 @@ private fun TodayTopBar(
         Column(
             modifier = Modifier
                 .clickable(onClick = onManageClick)
-                .padding(ActivityRowDimens.activityWholeRowVerticalPadding)
-            ,
+                .padding(ActivityRowDimens.activityWholeRowVerticalPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
@@ -532,7 +542,7 @@ private fun SearchBox(
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search)
                     )
-                    
+
                     LaunchedEffect(Unit) {
                         focusRequester.requestFocus()
                     }
@@ -585,11 +595,10 @@ private fun CurrentTaskBlock(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(
-                        min =
-                            ActivityRowDimens.currentTaskPadding * 2 +
-                                    ActivityRowDimens.touchTargetSize +
-                                    ActivityRowDimens.currentTaskBorder
+                    .height(
+                        ActivityRowDimens.currentTaskPadding * 2 +
+                                ActivityRowDimens.touchTargetSize +
+                                ActivityRowDimens.currentTaskBorder
                     )
                     .then(
                         if (currentActiveList.isNotEmpty()) {
@@ -640,7 +649,9 @@ private fun CurrentTaskBlock(
                                     color = contentColor,
                                     fontWeight = FontWeight.Medium,
                                     fontSize = ActivityRowDimens.headerFontSize,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.weight(1f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
 
                                 Spacer(
